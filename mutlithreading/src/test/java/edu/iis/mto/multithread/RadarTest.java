@@ -1,24 +1,39 @@
 package edu.iis.mto.multithread;
 
-import static org.mockito.Mockito.verify;
-
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.concurrent.ExecutorService;
+
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RadarTest {
 
     @Mock
     private PatriotBattery batteryMock;
+    @Mock
+    private ExecutorService executorServiceMock;
 
-    @Test
+    @BeforeEach
+    void setUp() {
+        when(executorServiceMock.submit(any(Runnable.class))).thenAnswer(invocation -> {
+            ((Runnable) invocation.getArgument(0)).run();
+            return null;
+        });
+    }
+
+    @RepeatedTest(25)
     void launchPatriotOnceWhenNoticesAScudMissle() {
-        Radar radar = new Radar(batteryMock);
+        int howManyMissiles = 10;
+        BetterRadar radar = new BetterRadar(howManyMissiles, batteryMock, executorServiceMock);
         Scud enemyMissle = new Scud();
         radar.notice(enemyMissle);
-        verify(batteryMock).launchPatriot(enemyMissle);
+        verify(batteryMock, timeout(20 * howManyMissiles).times(howManyMissiles)).launchPatriot(enemyMissle);
     }
 
 }
+
