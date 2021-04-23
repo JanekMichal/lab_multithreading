@@ -28,12 +28,29 @@ class RadarTest {
 
     @RepeatedTest(25)
     void launchPatriotOnceWhenNoticesAScudMissle() {
+        int howManyMissiles = 1;
+        BetterRadar radar = new BetterRadar(howManyMissiles, batteryMock, executorServiceMock);
+        Scud enemyMissle = new Scud();
+        radar.notice(enemyMissle);
+        verify(batteryMock, times(howManyMissiles)).launchPatriot(enemyMissle);
+    }
+
+    @RepeatedTest(25)
+    void launchPatriotTenTimesWhenNoticesTenScudMissles() {
         int howManyMissiles = 10;
         BetterRadar radar = new BetterRadar(howManyMissiles, batteryMock, executorServiceMock);
         Scud enemyMissle = new Scud();
         radar.notice(enemyMissle);
-        verify(batteryMock, timeout(20 * howManyMissiles).times(howManyMissiles)).launchPatriot(enemyMissle);
+        verify(batteryMock, times(howManyMissiles)).launchPatriot(enemyMissle);
     }
 
+    @RepeatedTest(25)
+    void launchPatriotZeroTimesWhenNoticesNoScudMissles() {
+        int howManyMissiles = 0;
+        BetterRadar radar = new BetterRadar(howManyMissiles, batteryMock, executorServiceMock);
+        Scud enemyMissle = new Scud();
+        radar.notice(enemyMissle);
+        verify(batteryMock, times(howManyMissiles)).launchPatriot(enemyMissle);
+    }
 }
 
